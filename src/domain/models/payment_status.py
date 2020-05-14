@@ -1,0 +1,8 @@
+from enum import Enum
+
+
+class PaymentStatus(Enum):
+    PENDING_PROCESSING = 'PENDING_PROCESSING'
+    CAPTURED = 'CAPTURED'
+    AUTHORIZED = 'AUTHORIZED'
+    REFUNDED = 'REFUNDED'
