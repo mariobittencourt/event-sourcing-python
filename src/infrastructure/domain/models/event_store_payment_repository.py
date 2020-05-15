@@ -4,8 +4,11 @@ import photonpump
 from src.domain.models.payment import Payment
 from src.domain.models.payment_authorized import PaymentAuthorized
 from src.domain.models.payment_created import PaymentCreated
+from src.domain.models.payment_declined import PaymentDeclined
 from src.domain.models.payment_id import PaymentId
+from src.domain.models.payment_refunded import PaymentRefunded
 from src.domain.models.payment_repository import PaymentRepository
+from src.domain.models.payment_settled import PaymentSettled
 
 
 class EventStorePaymentRepository(PaymentRepository):
@@ -15,7 +18,7 @@ class EventStorePaymentRepository(PaymentRepository):
         self._connected = False
 
     async def save(self, payment: Payment) -> bool:
-        await self.check_connection()
+        await self._check_connection()
 
         stream_name = self._create_stream_name(payment.payment_id)
         for event in payment.events:
@@ -24,7 +27,7 @@ class EventStorePaymentRepository(PaymentRepository):
 
         return True
 
-    async def check_connection(self):
+    async def _check_connection(self):
         if not self._connected:
             await self._client.connect()
             self._connected = True
@@ -33,27 +36,28 @@ class EventStorePaymentRepository(PaymentRepository):
         return f'payment-{payment_id.value}'
 
     async def find_by_id(self, payment_id: PaymentId) -> Payment:
-        await self.check_connection()
+        await self._check_connection()
 
         stream_name = self._create_stream_name(payment_id)
         payment = Payment(payment_id)
         async for event in self._client.iter(stream=stream_name, from_event=0):
-            await self.reconstruct_from_event(event, payment)
+            await self._reconstruct_from_event(event, payment)
 
         # I clear the events so changes won't multiply the events themselves
         payment.clear_events()
+
         return payment
 
-    async def reconstruct_from_event(self, event, payment):
+    async def _reconstruct_from_event(self, event, payment):
         # naive implementation
-        converted = event.json()
-        if event.type == 'PaymentCreated':
-            domain_event = PaymentCreated(payment_id=converted['_aggregate_id'], amount_due=converted['_amount_due'],
-                                          occurred_at=converted['_occurred_at'])
-        elif event.type == 'PaymentAuthorized':
-            domain_event = PaymentAuthorized(payment_id=converted['_aggregate_id'], bank_name=converted['_bank_name'],
-                                             authorization_id=converted['_authorization_id'])
-        else:
-            raise Exception('Unknown event')
+        event_types = {
+            'PaymentCreated': PaymentCreated,
+            'PaymentAuthorized': PaymentAuthorized,
+            'PaymentSettled': PaymentSettled,
+            'PaymentRefunded': PaymentRefunded,
+            'PaymentDeclined': PaymentDeclined
+        }
 
+        converted = event.json()
+        domain_event = event_types[event.type](**converted)
         payment.reconstruct_from_event(domain_event)

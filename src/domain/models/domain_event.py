@@ -1,31 +1,23 @@
 from abc import ABC, ABCMeta, abstractmethod
-from datetime import datetime
 import json
+import copy
 
 
 class DomainEventEncoder(json.JSONEncoder):
     def default(self, o):
-        return o.__dict__
+        encoded = copy.deepcopy(o.__dict__)
+
+        # removing meta properties
+        del encoded['type']
+        return encoded
 
 
 class DomainEvent(ABC, metaclass=ABCMeta):
     @abstractmethod
     def __init__(self, aggregate_id: str, occurred_at: str):
-        self._type = self.__class__.__name__
-        self._aggregate_id = aggregate_id
-        self._occurred_at = occurred_at
-
-    @property
-    def type(self) -> str:
-        return self._type
-
-    @property
-    def aggregate_id(self) -> str:
-        return self._aggregate_id
-
-    @property
-    def occurred_at(self) -> str:
-        return self._occurred_at
+        self.type = self.__class__.__name__
+        self.aggregate_id = aggregate_id
+        self.occurred_at = occurred_at
 
     def encode(self):
         return DomainEventEncoder().encode(self)

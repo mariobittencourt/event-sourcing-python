@@ -6,7 +6,9 @@ from src.domain.models.domain_event import DomainEvent
 from src.domain.models.payment_authorized import PaymentAuthorized
 from src.domain.models.payment_created import PaymentCreated
 from src.domain.models.payment_id import PaymentId
+from src.domain.models.payment_settled import PaymentSettled
 from src.domain.models.payment_status import PaymentStatus
+from src.domain.models.settlement import Settlement
 
 
 class Payment(Aggregate):
@@ -59,3 +61,15 @@ class Payment(Aggregate):
         transaction = Authorization(event.bank_name, event.authorization_id, event.occurred_at)
         self.transactions.append(transaction)
         self.events.append(event)
+
+    def settle(self, amount_settled: float, settlement_id: str):
+        # Some business rule. For example if the amount is less than the amount due etc.
+        self.apply(PaymentSettled(self.payment_id.value, amount_settled, settlement_id))
+
+    @apply.register(PaymentSettled)
+    def _(self, event: PaymentSettled):
+        # If amount is equal set the status to something specific
+        self._status = PaymentStatus.SETTLED
+        self._amount_due -= event.amount_settled
+        transaction = Settlement(event.amount_settled, event.settlement_id)
+        self.transactions.append(transaction)

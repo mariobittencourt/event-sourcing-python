@@ -3,6 +3,6 @@ from enum import Enum
 
 class PaymentStatus(Enum):
     PENDING_PROCESSING = 'PENDING_PROCESSING'
-    CAPTURED = 'CAPTURED'
+    SETTLED = 'SETTLED'
     AUTHORIZED = 'AUTHORIZED'
     REFUNDED = 'REFUNDED'
