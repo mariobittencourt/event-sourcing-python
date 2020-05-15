@@ -2,6 +2,8 @@ import asyncio
 import photonpump
 
 from src.domain.models.payment import Payment
+from src.domain.models.payment_authorized import PaymentAuthorized
+from src.domain.models.payment_created import PaymentCreated
 from src.domain.models.payment_id import PaymentId
 from src.domain.models.payment_repository import PaymentRepository
 
@@ -34,9 +36,24 @@ class EventStorePaymentRepository(PaymentRepository):
         await self.check_connection()
 
         stream_name = self._create_stream_name(payment_id)
-        # subscription = await self._client.subscribe_to(stream=stream_name, start_from=0)
-        # async for event in subscription.events:
-        #     print(event.json())
-        #     print(event.event_number)
-        async for event in self._client.stream(stream_name):
-            print(event)
+        payment = Payment(payment_id)
+        async for event in self._client.iter(stream=stream_name, from_event=0):
+            await self.reconstruct_from_event(event, payment)
+
+        # I clear the events so changes won't multiply the events themselves
+        payment.clear_events()
+        return payment
+
+    async def reconstruct_from_event(self, event, payment):
+        # naive implementation
+        converted = event.json()
+        if event.type == 'PaymentCreated':
+            domain_event = PaymentCreated(payment_id=converted['_aggregate_id'], amount_due=converted['_amount_due'],
+                                          occurred_at=converted['_occurred_at'])
+        elif event.type == 'PaymentAuthorized':
+            domain_event = PaymentAuthorized(payment_id=converted['_aggregate_id'], bank_name=converted['_bank_name'],
+                                             authorization_id=converted['_authorization_id'])
+        else:
+            raise Exception('Unknown event')
+
+        payment.reconstruct_from_event(domain_event)

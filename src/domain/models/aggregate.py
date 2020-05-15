@@ -28,3 +28,6 @@ class Aggregate:
     @method_dispatch
     def apply(self, event: DomainEvent):
         raise ValueError('Unknown event!')
+
+    def reconstruct_from_event(self, event: DomainEvent):
+        self.apply(event)
