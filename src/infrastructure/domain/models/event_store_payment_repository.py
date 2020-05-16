@@ -1,6 +1,7 @@
 import asyncio
 import photonpump
 
+from src.domain.models.domain_event import DomainEvent
 from src.domain.models.payment import Payment
 from src.domain.models.payment_authorized import PaymentAuthorized
 from src.domain.models.payment_created import PaymentCreated
@@ -33,7 +34,7 @@ class EventStorePaymentRepository(PaymentRepository):
             self._connected = True
 
     def _create_stream_name(self, payment_id: PaymentId) -> str:
-        return f'payment-{payment_id.value}'
+        return f'payments-{payment_id.value}'
 
     async def find_by_id(self, payment_id: PaymentId) -> Payment:
         await self._check_connection()
@@ -49,6 +50,11 @@ class EventStorePaymentRepository(PaymentRepository):
         return payment
 
     async def _reconstruct_from_event(self, event, payment):
+        domain_event = await self.convert_to_domain_event(event)
+        payment.reconstruct_from_event(domain_event)
+
+    @staticmethod
+    async def convert_to_domain_event(event) -> DomainEvent:
         # naive implementation
         event_types = {
             'PaymentCreated': PaymentCreated,
@@ -57,7 +63,5 @@ class EventStorePaymentRepository(PaymentRepository):
             'PaymentRefunded': PaymentRefunded,
             'PaymentDeclined': PaymentDeclined
         }
-
         converted = event.json()
-        domain_event = event_types[event.type](**converted)
-        payment.reconstruct_from_event(domain_event)
+        return event_types[event.type](**converted)
