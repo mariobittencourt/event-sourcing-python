@@ -62,9 +62,9 @@ class Payment(Aggregate):
         self.transactions.append(transaction)
         self.events.append(event)
 
-    def settle(self, amount_settled: float, settlement_id: str):
+    def settle(self, bank_name: str, amount_settled: float, settlement_id: str):
         # Some business rule. For example if the amount is less than the amount due etc.
-        self.apply(PaymentSettled(self.payment_id.value, amount_settled, settlement_id))
+        self.apply(PaymentSettled(self.payment_id.value, bank_name, amount_settled, settlement_id))
 
     @apply.register(PaymentSettled)
     def _(self, event: PaymentSettled):
