@@ -31,3 +31,7 @@ class Aggregate:
 
     def reconstruct_from_event(self, event: DomainEvent):
         self.apply(event)
+
+    def record_that(self, event: DomainEvent):
+        self.reconstruct_from_event(event)
+        self.events.append(event)

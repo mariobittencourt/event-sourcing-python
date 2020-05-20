@@ -6,6 +6,9 @@ class PaymentProjection:
     def __init__(self, repository: PaymentViewRepository):
         self.repository = repository
 
+    def boot(self) -> bool:
+        return self.repository.initialize()
+
     def create_payment(self, payment_id: str, status: str, amount_due: float, last_updated_at: str):
         payment_view = PaymentView(
             payment_id=payment_id,

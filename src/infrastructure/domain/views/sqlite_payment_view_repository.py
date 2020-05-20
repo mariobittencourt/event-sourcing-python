@@ -10,11 +10,24 @@ class SqlitePaymentViewRepository(PaymentViewRepository):
         self._connection = sqlite3.connect(database_name)
         self._connection.row_factory = sqlite3.Row
 
-    def create(self):
-        cursor = self._connection.cursor()
-        cursor.execute('''CREATE TABLE payment_view
-                     (payment_id text, status text, amount_due real, last_updated_at text)''')
-        cursor.execute('CREATE UNIQUE INDEX idx_payment_view_payment_id ON payment_view (payment_id)')
+    def initialize(self) -> bool:
+        try:
+            cursor = self._connection.cursor()
+            cursor.execute('''CREATE TABLE payment_view
+                         (payment_id text, status text, amount_due real, last_updated_at text)''')
+            cursor.execute('CREATE UNIQUE INDEX idx_payment_view_payment_id ON payment_view (payment_id)')
+        except sqlite3.OperationalError:
+            # this would have to see if the table already exists to pass
+            pass
+        return True
+
+    def reset(self) -> bool:
+        try:
+            cursor = self._connection.cursor()
+            cursor.execute('TRUNCATE TABLE payment_view')
+            return True
+        except sqlite3.OperationalError:
+            return False
 
     def update(self, payment: PaymentView) -> bool:
         cursor = self._connection.cursor()

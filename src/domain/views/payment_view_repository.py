@@ -12,9 +12,19 @@ class PaymentViewRepository(metaclass=abc.ABCMeta):
             hasattr(subclass, 'update') and
             callable(subclass.update) and
             hasattr(subclass, 'find_by_id') and
-            callable(subclass.find_by_id)
+            callable(subclass.find_by_id) and
+            hasattr(subclass, 'initialize') and
+            callable(subclass.initialize) and
+            hasattr(subclass, 'reset') and
+            callable(subclass.reset)
             or NotImplemented
         )
+
+    def initialize(self) -> bool:
+        raise NotImplementedError
+
+    def reset(self) -> bool:
+        raise NotImplementedError
 
     def insert(self, payment: PaymentView) -> bool:
         raise NotImplementedError

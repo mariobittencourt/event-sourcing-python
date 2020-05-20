@@ -1,0 +1,13 @@
+version: "3.4"
+
+services:
+
+  ################# Services #################
+  eventstore:
+    image: eventstore/eventstore
+    ports:
+      - 2113:2113
+      - 1113:1113
+    environment:
+      EVENTSTORE_START_STANDARD_PROJECTIONS: 1
+      EVENTSTORE_RUN_PROJECTIONS: All
