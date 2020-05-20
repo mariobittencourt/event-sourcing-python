@@ -10,10 +10,12 @@ class PaymentProjectionist:
 
     async def start(self):
         # load the ledger last position
+        # subscribe to the stream from the ledger position
         await self.stream_service.subscribe(stream='$ce-payments', start_from=0, projectionist=self)
 
     def handle(self, event: DomainEvent):
         # pass it to the projector
+        self.projector.apply(event)
         # if all goes well, acknowledge the ledger to know when to resume next time.
-        print(event.type)
+
 

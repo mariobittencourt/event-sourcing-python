@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from src.domain.models.aggregate import Aggregate, method_dispatch
 from src.domain.models.authorization import Authorization
+from src.domain.models.decline import Decline
 from src.domain.models.domain_event import DomainEvent
 from src.domain.models.payment_authorized import PaymentAuthorized
 from src.domain.models.payment_created import PaymentCreated
+from src.domain.models.payment_declined import PaymentDeclined
 from src.domain.models.payment_id import PaymentId
 from src.domain.models.payment_settled import PaymentSettled
 from src.domain.models.payment_status import PaymentStatus
@@ -68,8 +70,20 @@ class Payment(Aggregate):
 
     @apply.register(PaymentSettled)
     def _(self, event: PaymentSettled):
-        # If amount is equal set the status to something specific
+        # In real scenario, validate if amount is equal before setting the status to something specific
         self._status = PaymentStatus.SETTLED
         self._amount_due -= event.amount_settled
-        transaction = Settlement(event.amount_settled, event.settlement_id)
+        transaction = Settlement(bank_name=event.bank_name, amount_settled=event.amount_settled, settlement_id=event.settlement_id)
         self.transactions.append(transaction)
+        self.events.append(event)
+
+    def decline(self, bank_name: str, decline_code: int, decline_id: str):
+        # again some business rules
+        self.apply(PaymentDeclined(self.payment_id.value, bank_name, decline_code, decline_id))
+
+    @apply.register(PaymentDeclined)
+    def _(self, event: PaymentDeclined):
+        self._status = PaymentStatus.DECLINED.value
+        transaction = Decline(decline_code=event.decline_code, decline_id=event.decline_id)
+        self.transactions.append(transaction)
+        self.events.append(event)

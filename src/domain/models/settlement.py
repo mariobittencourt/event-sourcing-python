@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from src.domain.models.transaction import Transaction
 
 
 class Settlement(Transaction):
-    def __init__(self, bank_name: str, amount_settled: float, settlement_id: str, occurred_at: str):
+    def __init__(self, bank_name: str, amount_settled: float, settlement_id: str, occurred_at: str = datetime.utcnow().isoformat()):
         super().__init__(occurred_at)
         self._amount_settled = amount_settled
         self._settlement_id = settlement_id

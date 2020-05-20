@@ -6,3 +6,4 @@ class PaymentStatus(Enum):
     SETTLED = 'SETTLED'
     AUTHORIZED = 'AUTHORIZED'
     REFUNDED = 'REFUNDED'
+    DECLINED = 'DECLINED'

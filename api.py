@@ -21,6 +21,7 @@ async def find(my_payment: Payment):
 if __name__ == "__main__":
     payment = Payment.create(PaymentId(), 10.00)
     payment.authorize('BMO', 'xxx-uuu-id')
+    payment.settle('BMO', amount_settled=9.00, settlement_id='xxx-zzz-id')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(save(payment))
     loop.run_until_complete(find(payment))
@@ -30,10 +31,3 @@ if __name__ == "__main__":
         payment_view_repository.create()
     except sqlite3.OperationalError:
         pass
-
-    # payment_view = PaymentView(payment_id='X', status='PENDING', amount_due=10.00, last_updated_at='NOW')
-    # payment_view_repository.insert(payment_view)
-
-    pv = payment_view_repository.find_by_id('X')
-    pv.status = 'BOGA'
-    payment_view_repository.update(pv)
