@@ -1,6 +1,7 @@
 import asyncio
 import photonpump
 
+from src.config.settings import DATABASE_NAME, EVENT_STORE_PASSWORD, EVENT_STORE_USERNAME
 from src.domain.views.payment_projection import PaymentProjection
 from src.domain.views.payment_projector import PaymentProjector
 from src.infrastructure.domain.services.event_store_stream_service import PaymentProjectionist, EventStoreStreamService
@@ -9,8 +10,8 @@ from src.infrastructure.domain.views.sqlite_payment_view_repository import Sqlit
 
 
 async def import_stream():
-    # Use DI and config files (.env) to initialize in real life
-    database_name = '../../../../payment_view.sqlite'
+    # Use DI to initialize in real life
+    database_name = f"../../../../{DATABASE_NAME}"
     ledger_repository = SqliteLedgerRepository(database_name=database_name)
 
     repository = SqlitePaymentViewRepository(database_name=database_name)
@@ -18,7 +19,9 @@ async def import_stream():
 
     projector = PaymentProjector(projection)
 
-    stream_service = EventStoreStreamService(photonpump.connect(username='admin', password='changeit'))
+    stream_service = EventStoreStreamService(
+        photonpump.connect(username=EVENT_STORE_USERNAME, password=EVENT_STORE_PASSWORD)
+    )
     projectionist = PaymentProjectionist(projector, stream_service, ledger_repository=ledger_repository)
     await projectionist.start()
 

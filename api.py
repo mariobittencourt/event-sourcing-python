@@ -1,17 +1,18 @@
 import asyncio
 
+from src.config.settings import EVENT_STORE_PASSWORD, EVENT_STORE_USERNAME
 from src.domain.models.payment import Payment
 from src.domain.models.payment_id import PaymentId
 from src.infrastructure.domain.models.event_store_payment_repository import EventStorePaymentRepository
 
 
 async def save(my_payment: Payment):
-    repository = EventStorePaymentRepository(username='admin', password='changeit')
+    repository = EventStorePaymentRepository(username=EVENT_STORE_USERNAME, password=EVENT_STORE_PASSWORD)
     await repository.save(my_payment)
 
 
 async def find(my_payment: Payment):
-    repository = EventStorePaymentRepository(username='admin', password='changeit')
+    repository = EventStorePaymentRepository(username=EVENT_STORE_USERNAME, password=EVENT_STORE_PASSWORD)
     await repository.find_by_id(my_payment.payment_id)
 
 
