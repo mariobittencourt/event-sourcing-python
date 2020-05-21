@@ -25,6 +25,7 @@ class SqlitePaymentViewRepository(PaymentViewRepository):
         try:
             cursor = self._connection.cursor()
             cursor.execute('TRUNCATE TABLE payment_view')
+            self._connection.commit()
             return True
         except sqlite3.OperationalError:
             return False

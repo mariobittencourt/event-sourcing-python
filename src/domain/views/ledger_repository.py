@@ -11,7 +11,9 @@ class LedgerRepository(metaclass=abc.ABCMeta):
             hasattr(subclass, 'find_by_id') and
             callable(subclass.find_by_id) and
             hasattr(subclass, 'initialize') and
-            callable(subclass.initialize)
+            callable(subclass.initialize) and
+            hasattr(subclass, 'reset') and
+            callable(subclass.reset)
             or NotImplemented
         )
 
@@ -19,6 +21,9 @@ class LedgerRepository(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     def initialize(self) -> bool:
+        raise NotImplementedError
+
+    def reset(self) -> bool:
         raise NotImplementedError
 
     def insert(self, ledger: Ledger) -> bool:

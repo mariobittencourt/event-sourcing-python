@@ -10,10 +10,10 @@ from src.infrastructure.domain.views.sqlite_payment_view_repository import Sqlit
 
 async def import_stream():
     # Use DI and config files (.env) to initialize in real life
-    ledger_repository = SqliteLedgerRepository(database_name='../../../../payment_view.sqlite')
-    ledger_repository.initialize()
+    database_name = '../../../../payment_view.sqlite'
+    ledger_repository = SqliteLedgerRepository(database_name=database_name)
 
-    repository = await create_repository()
+    repository = SqlitePaymentViewRepository(database_name=database_name)
     projection = PaymentProjection(repository)
 
     projector = PaymentProjector(projection)
@@ -21,14 +21,6 @@ async def import_stream():
     stream_service = EventStoreStreamService(photonpump.connect(username='admin', password='changeit'))
     projectionist = PaymentProjectionist(projector, stream_service, ledger_repository=ledger_repository)
     await projectionist.start()
-
-
-async def create_repository():
-    repository = SqlitePaymentViewRepository(database_name='../../../../payment_view.sqlite')
-    # Creating / resetting the projection
-    repository.initialize()
-    repository.reset()
-    return repository
 
 
 if __name__ == "__main__":

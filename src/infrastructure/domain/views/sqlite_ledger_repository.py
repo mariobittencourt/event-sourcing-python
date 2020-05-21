@@ -17,9 +17,18 @@ class SqliteLedgerRepository(LedgerRepository):
                          (ledger_id INTEGER PRIMARY KEY AUTOINCREMENT, projection_name text, last_position int)''')
             cursor.execute('CREATE UNIQUE INDEX idx_ledger_projection_name ON ledger (projection_name)')
         except sqlite3.OperationalError:
-            # this would have to see if the table already exists to pass
+            # this would have to see if the table already exists to pass or provide better error
             pass
         return True
+
+    def reset(self) -> bool:
+        try:
+            cursor = self._connection.cursor()
+            cursor.execute('TRUNCATE TABLE ledger')
+            self._connection.commit()
+            return True
+        except sqlite3.OperationalError:
+            return False
 
     def update(self, ledger: Ledger) -> bool:
         cursor = self._connection.cursor()
@@ -30,8 +39,8 @@ class SqliteLedgerRepository(LedgerRepository):
 
     def insert(self, ledger: Ledger) -> bool:
         cursor = self._connection.cursor()
-        cursor.execute('INSERT INTO ledger VALUES (?,?)',
-                       ((ledger.projection_name,), ledger.last_position))
+        cursor.execute('INSERT INTO ledger VALUES (?,?,?)',
+                       (None, ledger.projection_name, ledger.last_position))
         self._connection.commit()
         return True
 

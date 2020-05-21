@@ -1,5 +1,6 @@
 from src.domain.models.domain_event import DomainEvent
 from src.domain.services.payment_stream_service import PaymentStreamService
+from src.domain.views.ledger import Ledger
 from src.domain.views.ledger_repository import LedgerRepository
 from src.domain.views.payment_projector import PaymentProjector
 
