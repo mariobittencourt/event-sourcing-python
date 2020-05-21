@@ -3,6 +3,8 @@ import functools
 from src.domain.models.domain_event import DomainEvent
 from src.domain.models.payment_authorized import PaymentAuthorized
 from src.domain.models.payment_created import PaymentCreated
+from src.domain.models.payment_declined import PaymentDeclined
+from src.domain.models.payment_refunded import PaymentRefunded
 from src.domain.models.payment_settled import PaymentSettled
 from src.domain.models.payment_status import PaymentStatus
 from src.domain.views.payment_projection import PaymentProjection
@@ -50,5 +52,22 @@ class PaymentProjector:
             payment_id=event.aggregate_id,
             status=PaymentStatus.SETTLED.value,
             amount_settled=event.amount_settled,
+            last_updated_at=event.occurred_at
+        )
+
+    @apply.register(PaymentDeclined)
+    def _(self, event: PaymentDeclined):
+        self.projection.make_payment_declined(
+            payment_id=event.aggregate_id,
+            status=PaymentStatus.DECLINED.value,
+            last_updated_at=event.occurred_at
+        )
+
+    @apply.register(PaymentRefunded)
+    def _(self, event: PaymentRefunded):
+        self.projection.make_payment_refunded(
+            payment_id=event.aggregate_id,
+            status=PaymentStatus.REFUNDED.value,
+            amount_refunded=event.amount_refunded,
             last_updated_at=event.occurred_at
         )

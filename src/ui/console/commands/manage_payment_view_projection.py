@@ -4,18 +4,22 @@ import photonpump
 from src.domain.views.payment_projection import PaymentProjection
 from src.domain.views.payment_projector import PaymentProjector
 from src.infrastructure.domain.services.event_store_stream_service import PaymentProjectionist, EventStoreStreamService
+from src.infrastructure.domain.views.sqlite_ledger_repository import SqliteLedgerRepository
 from src.infrastructure.domain.views.sqlite_payment_view_repository import SqlitePaymentViewRepository
 
 
 async def import_stream():
     # Use DI and config files (.env) to initialize in real life
+    ledger_repository = SqliteLedgerRepository(database_name='../../../../payment_view.sqlite')
+    ledger_repository.initialize()
+
     repository = await create_repository()
     projection = PaymentProjection(repository)
 
     projector = PaymentProjector(projection)
 
     stream_service = EventStoreStreamService(photonpump.connect(username='admin', password='changeit'))
-    projectionist = PaymentProjectionist(projector, stream_service)
+    projectionist = PaymentProjectionist(projector, stream_service, ledger_repository=ledger_repository)
     await projectionist.start()
 
 
