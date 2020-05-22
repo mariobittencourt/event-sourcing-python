@@ -82,7 +82,7 @@ class Payment(Aggregate):
 
     @apply.register(PaymentDeclined)
     def _(self, event: PaymentDeclined):
-        self._status = PaymentStatus.DECLINED.value
+        self._status = PaymentStatus.DECLINED
         transaction = Decline(decline_code=event.decline_code, decline_id=event.decline_id)
         self.transactions.append(transaction)
 

@@ -9,3 +9,6 @@ class Transaction(ABC, metaclass=ABCMeta):
     @property
     def occurred_at(self) -> str:
         return self._occurred_at
+
+    def __str__(self):
+        return f'Occurred at: {self.occurred_at}'

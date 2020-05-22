@@ -14,3 +14,6 @@ class Authorization(Transaction):
     @property
     def authorization_id(self) -> str:
         return self._authorization_id
+
+    def __str__(self):
+        return f'\tBank name: {self.bank_name}\n\tAuthorization ID: {self.authorization_id}\n\t{Transaction.__str__(self)}'

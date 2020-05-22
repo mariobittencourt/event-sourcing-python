@@ -16,3 +16,6 @@ class Refund(Transaction):
     @property
     def refund_id(self) -> str:
         return self._refund_id
+
+    def __str__(self):
+        return f'\tAmount refunded: {self.amount_refunded}\n\tRefund ID: {self.refund_id}\n\t{Transaction.__str__(self)}'

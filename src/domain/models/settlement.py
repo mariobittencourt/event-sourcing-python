@@ -21,3 +21,6 @@ class Settlement(Transaction):
     @property
     def bank_name(self) -> str:
         return self._bank_name
+
+    def __str__(self):
+        return f'\tBank name: {self.bank_name}\n\tAmount settled: {self.amount_settled}\n\tSettlement ID: {self.settlement_id}\n\t{Transaction.__str__(self)}'

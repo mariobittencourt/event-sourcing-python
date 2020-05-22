@@ -16,3 +16,6 @@ class Decline(Transaction):
     @property
     def decline_id(self) -> int:
         return self._decline_id
+
+    def __str__(self):
+        return f'\tDecline code: {self.decline_code}\n\tDecline ID: {self.decline_id}\n\t{Transaction.__str__(self)}'
