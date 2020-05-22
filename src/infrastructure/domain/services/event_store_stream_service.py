@@ -2,7 +2,7 @@ from photonpump.connection import Client
 from photonpump.conversations import VolatileSubscription
 
 from src.domain.services.payment_stream_service import PaymentStreamService
-from src.domain.views.payment_projectionist import PaymentProjectionist
+from src.domain.views.customer.payment_projectionist import PaymentProjectionist
 from src.infrastructure.domain.models.event_store_payment_repository import EventStorePaymentRepository
 
 

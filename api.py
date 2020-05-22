@@ -30,7 +30,7 @@ def print_payment(my_payment: Payment):
 if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option('-a', action='store', help='Which action to execute create, authorize, settle, decline, refund or find')
-    parser.add_option('-i', action='store', help='The payment ID to authorize, settle, decline, refund or find')
+    parser.add_option('-i', action='store', help='The customer ID to authorize, settle, decline, refund or find')
     parser.add_option('-v', action='store', help='The amount to create, settle or refund', default=100.00)
     parser.add_option('-b', action='store', help='The bank name', default='My Super Bank')
     parser.add_option('-c', action='store', help='The reason code for declines', default=999)

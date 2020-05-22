@@ -2,11 +2,11 @@ import asyncio
 import photonpump
 
 from src.config.settings import DATABASE_NAME, EVENT_STORE_PASSWORD, EVENT_STORE_USERNAME
-from src.domain.views.payment_projection import PaymentProjection
-from src.domain.views.payment_projector import PaymentProjector
+from src.domain.views.customer.payment_projection import PaymentProjection
+from src.domain.views.customer.payment_projector import PaymentProjector
 from src.infrastructure.domain.services.event_store_stream_service import PaymentProjectionist, EventStoreStreamService
 from src.infrastructure.domain.views.sqlite_ledger_repository import SqliteLedgerRepository
-from src.infrastructure.domain.views.sqlite_payment_view_repository import SqlitePaymentViewRepository
+from src.infrastructure.domain.views.customer.sqlite_payment_view_repository import SqlitePaymentViewRepository
 
 
 async def import_stream():

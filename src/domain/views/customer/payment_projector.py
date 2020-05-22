@@ -7,7 +7,7 @@ from src.domain.models.payment_declined import PaymentDeclined
 from src.domain.models.payment_refunded import PaymentRefunded
 from src.domain.models.payment_settled import PaymentSettled
 from src.domain.models.payment_status import PaymentStatus
-from src.domain.views.payment_projection import PaymentProjection
+from src.domain.views.customer.payment_projection import PaymentProjection
 
 
 def method_dispatch(func):

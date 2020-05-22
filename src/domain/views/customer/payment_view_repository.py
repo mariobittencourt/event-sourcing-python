@@ -1,6 +1,6 @@
 import abc
 
-from src.domain.views.payment_view import PaymentView
+from src.domain.views.customer.payment_view import PaymentView
 
 
 class PaymentViewRepository(metaclass=abc.ABCMeta):

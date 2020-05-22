@@ -49,9 +49,20 @@ class SqliteLedgerRepository(LedgerRepository):
         cursor.execute('SELECT * FROM ledger WHERE ledger_id = ?', (ledger_id,))
         row = cursor.fetchone()
         if row is not None:
-            ledger = Ledger(
-                ledger_id=row['ledger_id'],
-                projection_name=row['projection_name'],
-                last_position=row['last_position']
-            )
-            return ledger
+            return self.build_ledger(row)
+
+    def find_by_projection_name(self, projection_name: str) -> Optional[Ledger]:
+        cursor = self._connection.cursor()
+        cursor.execute('SELECT * FROM ledger WHERE projection_name = ?', (projection_name,))
+        row = cursor.fetchone()
+        if row is not None:
+            return self.build_ledger(row)
+
+    def build_ledger(self, row) -> Ledger:
+        ledger = Ledger(
+            ledger_id=row['ledger_id'],
+            projection_name=row['projection_name'],
+            last_position=row['last_position']
+        )
+        return ledger
+

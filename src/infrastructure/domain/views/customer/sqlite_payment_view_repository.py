@@ -1,8 +1,8 @@
 import sqlite3
 from typing import Optional
 
-from src.domain.views.payment_view import PaymentView
-from src.domain.views.payment_view_repository import PaymentViewRepository
+from src.domain.views.customer.payment_view import PaymentView
+from src.domain.views.customer.payment_view_repository import PaymentViewRepository
 
 
 class SqlitePaymentViewRepository(PaymentViewRepository):
