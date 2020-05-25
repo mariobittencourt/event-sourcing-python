@@ -4,6 +4,7 @@ from src.domain.models.aggregate import Aggregate, method_dispatch
 from src.domain.models.authorization import Authorization
 from src.domain.models.decline import Decline
 from src.domain.models.domain_event import DomainEvent
+from src.domain.models.invalid_state_error import InvalidStateError
 from src.domain.models.payment_authorized import PaymentAuthorized
 from src.domain.models.payment_created import PaymentCreated
 from src.domain.models.payment_declined import PaymentDeclined
@@ -65,12 +66,17 @@ class Payment(Aggregate):
         self.transactions.append(transaction)
 
     def settle(self, bank_name: str, amount_settled: float, settlement_id: str) -> None:
-        # Some business rule. For example if the amount is less than the amount due etc.
+        # Some business rules. For example if the amount is less than the amount due etc.
+        if self.status != PaymentStatus.PENDING_PROCESSING or self.status != PaymentStatus.AUTHORIZED:
+            raise InvalidStateError('only pending or authorized payments can be settled')
+
+        if self.amount_due != amount_settled:
+            raise InvalidStateError('The settled amount is different than the amount due')
+
         self.record_that(PaymentSettled(self.payment_id.value, bank_name, amount_settled, settlement_id))
 
     @apply.register(PaymentSettled)
     def _(self, event: PaymentSettled):
-        # In real scenario, validate if amount is equal before setting the status to something specific
         self._status = PaymentStatus.SETTLED
         self._amount_due -= event.amount_settled
         transaction = Settlement(bank_name=event.bank_name, amount_settled=event.amount_settled, settlement_id=event.settlement_id)
@@ -78,6 +84,8 @@ class Payment(Aggregate):
 
     def decline(self, bank_name: str, decline_code: int, decline_id: str) -> None:
         # again some business rules
+        if self.status != PaymentStatus.PENDING_PROCESSING:
+            raise InvalidStateError('Only pending payments can be declined')
         self.record_that(PaymentDeclined(self.payment_id.value, bank_name, decline_code, decline_id))
 
     @apply.register(PaymentDeclined)
@@ -87,6 +95,9 @@ class Payment(Aggregate):
         self.transactions.append(transaction)
 
     def refund(self, amount_refunded: float, refund_id: str) -> None:
+        # business rules
+        if self.status != PaymentStatus.SETTLED:
+            raise InvalidStateError('Only settled payments can be refunded')
         self.record_that(PaymentRefunded(aggregate_id=self.payment_id.value, amount_refunded=amount_refunded, refund_id=refund_id))
 
     @apply.register(PaymentRefunded)
