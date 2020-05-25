@@ -23,7 +23,8 @@ async def import_stream():
         photonpump.connect(username=EVENT_STORE_USERNAME, password=EVENT_STORE_PASSWORD)
     )
     projectionist = PaymentProjectionist(
-        projector=projector, stream_service=stream_service, ledger_repository=ledger_repository, ledger_name=PAYMENT_PROJECTION
+        projector=projector, stream_service=stream_service,
+        ledger_repository=ledger_repository, ledger_name=PAYMENT_PROJECTION
     )
     await projectionist.start()
 

@@ -1,5 +1,4 @@
-import functools
-
+from src.domain.views.projector import method_dispatch
 from src.domain.models.domain_event import DomainEvent
 from src.domain.models.payment_authorized import PaymentAuthorized
 from src.domain.models.payment_created import PaymentCreated
@@ -8,17 +7,6 @@ from src.domain.models.payment_refunded import PaymentRefunded
 from src.domain.models.payment_settled import PaymentSettled
 from src.domain.models.payment_status import PaymentStatus
 from src.domain.views.customer.payment_projection import PaymentProjection
-
-
-def method_dispatch(func):
-    dispatcher = functools.singledispatch(func)
-
-    def wrapper(*args, **kw):
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-
-    wrapper.register = dispatcher.register
-    functools.update_wrapper(wrapper, func)
-    return wrapper
 
 
 class PaymentProjector:

@@ -1,19 +1,7 @@
-import functools
-
+from src.domain.views.projector import method_dispatch
 from src.domain.models.domain_event import DomainEvent
 from src.domain.models.payment_declined import PaymentDeclined
 from src.domain.views.finance.decline_projection import DeclineProjection
-
-
-def method_dispatch(func):
-    dispatcher = functools.singledispatch(func)
-
-    def wrapper(*args, **kw):
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-
-    wrapper.register = dispatcher.register
-    functools.update_wrapper(wrapper, func)
-    return wrapper
 
 
 class DeclineProjector:
