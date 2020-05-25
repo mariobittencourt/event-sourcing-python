@@ -1,11 +1,13 @@
 from optparse import OptionParser
 import asyncio
+from uuid import uuid4
 
 from src.config.settings import EVENT_STORE_PASSWORD, EVENT_STORE_USERNAME
 from src.domain.models.invalid_state_error import InvalidStateError
 from src.domain.models.payment import Payment
 from src.domain.models.payment_id import PaymentId
 from src.infrastructure.domain.models.event_store_payment_repository import EventStorePaymentRepository
+from src.infrastructure.domain.views.finance.sqlite_decline_view_repository import SqliteDeclineViewRepository
 
 
 async def save(my_payment: Payment):
@@ -58,14 +60,15 @@ if __name__ == "__main__":
             exit(0)
 
         try:
+            transaction_id = str(uuid4())
             if options.a == 'authorize':
-                payment.authorize(bank_name, 'xxx-uuu-id')
+                payment.authorize(bank_name, transaction_id)
             elif options.a == 'settle':
-                payment.settle(bank_name=bank_name, amount_settled=amount, settlement_id='xxx-zzz-id')
+                payment.settle(bank_name=bank_name, amount_settled=amount, settlement_id=transaction_id)
             elif options.a == 'decline':
-                payment.decline(bank_name=bank_name, decline_code=decline_code, decline_id='zzz-uuu-id')
+                payment.decline(bank_name=bank_name, decline_code=decline_code, decline_id=transaction_id)
             elif options.a == 'refund':
-                payment.refund(amount_refunded=amount, refund_id='1-800-GOT-JUNK')
+                payment.refund(amount_refunded=amount, refund_id=transaction_id)
 
             loop.run_until_complete(save(payment))
             print_payment(payment)

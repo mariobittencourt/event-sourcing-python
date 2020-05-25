@@ -5,5 +5,6 @@ from dataclasses import dataclass
 class DeclineView:
     decline_code: int
     bank_name: str
-    occurrence: int = 0
+    date: str
+    count: int = 0
 

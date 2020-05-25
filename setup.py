@@ -1,8 +1,9 @@
 import getopt
 import sys
 
-from src.config.settings import DATABASE_NAME
+from src.config.settings import DATABASE_NAME, PAYMENT_PROJECTION, DECLINE_PROJECTION
 from src.domain.views.ledger import Ledger
+from src.infrastructure.domain.views.finance.sqlite_decline_view_repository import SqliteDeclineViewRepository
 from src.infrastructure.domain.views.sqlite_ledger_repository import SqliteLedgerRepository
 from src.infrastructure.domain.views.customer.sqlite_payment_view_repository import SqlitePaymentViewRepository
 
@@ -17,6 +18,11 @@ if __name__ == "__main__":
     if payment_view_repository.initialize():
         print('Payment projection available')
 
+    # Create finance decline projection view
+    decline_view_repository = SqliteDeclineViewRepository(database_name=DATABASE_NAME)
+    if payment_view_repository.initialize():
+        print('Decline code projection available')
+
     opts, args = getopt.getopt(sys.argv[1:], 'r', ["reset"])
     for o, a in opts:
         if o in ('-r', '--reset'):
@@ -26,4 +32,5 @@ if __name__ == "__main__":
         else:
             assert False, 'Unknown option'
 
-    ledger_repository.insert(Ledger(1, 'customer'))
+    ledger_repository.insert(Ledger(1, PAYMENT_PROJECTION))
+    ledger_repository.insert(Ledger(2, DECLINE_PROJECTION))

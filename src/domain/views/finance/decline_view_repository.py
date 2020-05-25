@@ -8,8 +8,6 @@ class DeclineViewRepository(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasscheck__(cls, subclass):
         return (
-            hasattr(subclass, 'insert') and
-            callable(subclass.insert) and
             hasattr(subclass, 'increment_occurrence') and
             callable(subclass.increment_occurrence) and
             hasattr(subclass, 'initialize') and
@@ -27,10 +25,7 @@ class DeclineViewRepository(metaclass=abc.ABCMeta):
     def reset(self) -> bool:
         raise NotImplementedError
 
-    def insert(self, decline: DeclineView) -> bool:
-        raise NotImplementedError
-
-    def increment_occurrence(self, decline_code: int, bank_name: str) -> bool:
+    def increment_occurrence(self, decline_code: int, bank_name: str, date: str) -> bool:
         raise NotImplementedError
 
     def find_by_decline_code(self, decline_code: int) -> List[DeclineView]:

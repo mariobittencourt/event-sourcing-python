@@ -5,15 +5,16 @@ from src.domain.views.customer.payment_projector import PaymentProjector
 
 
 class PaymentProjectionist:
-    def __init__(self, projector: PaymentProjector, stream_service: PaymentStreamService, ledger_repository: LedgerRepository):
+    def __init__(self, projector: PaymentProjector, stream_service: PaymentStreamService, ledger_repository: LedgerRepository, ledger_name: str):
         self.projector = projector
         self.stream_service = stream_service
         self.ledger_repository = ledger_repository
         self.ledger = None
+        self.ledger_name = ledger_name
 
     async def start(self):
         # load the ledger last position
-        self.ledger = self.ledger_repository.find_by_id(1)
+        self.ledger = self.ledger_repository.find_by_projection_name(self.ledger_name)
 
         # subscribe to the stream from the ledger position
         if self.ledger.last_position == -1:

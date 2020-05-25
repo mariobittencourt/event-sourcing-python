@@ -24,7 +24,7 @@ class SqliteLedgerRepository(LedgerRepository):
     def reset(self) -> bool:
         try:
             cursor = self._connection.cursor()
-            cursor.execute('TRUNCATE TABLE ledger')
+            cursor.execute('DELETE FROM ledger')
             self._connection.commit()
             return True
         except sqlite3.OperationalError:
