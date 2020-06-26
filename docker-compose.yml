@@ -11,3 +11,4 @@ services:
     environment:
       EVENTSTORE_START_STANDARD_PROJECTIONS: 1
       EVENTSTORE_RUN_PROJECTIONS: All
+      EVENTSTORE_DEV: "true"
