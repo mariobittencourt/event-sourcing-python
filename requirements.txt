@@ -7,7 +7,7 @@ chardet==3.0.4
 idna==2.9
 multidict==4.7.5
 photon-pump==0.9.2
-protobuf==3.11.3
+protobuf==3.15.0
 pycares==3.1.1
 pycparser==2.20
 python-dotenv==0.13.0
